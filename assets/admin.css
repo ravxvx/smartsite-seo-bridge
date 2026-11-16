@@ -1,0 +1,21 @@
+#ssb-wrap h1 small { font-size: 12px; color: #646970; font-weight: 400; }
+.ssb-content { margin-top: 12px; }
+.ssb-controls select, .ssb-controls input[type=search] { margin-right: 6px; }
+.ssb-controls label { margin-right: 8px; }
+.ssb-status { padding: 8px 12px; margin: 10px 0; border-left: 4px solid #2271b1; background: #fff; }
+.ssb-status.ok { border-color: #00a32a; }
+.ssb-status.err { border-color: #d63638; }
+.ssb-badge { display: inline-block; min-width: 44px; text-align: center; padding: 2px 8px; border-radius: 12px; font-weight: 600; color: #fff; }
+.ssb-badge.ssb-green { background: #1a7f37; }
+.ssb-badge.ssb-orange { background: #b45f06; }
+.ssb-badge.ssb-red { background: #b32d2e; }
+.ssb-panel { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.4fr); gap: 24px; padding: 8px 4px; }
+@media (max-width: 960px) { .ssb-panel { grid-template-columns: 1fr; } }
+.ssb-checks ul { margin: 0; padding: 0; list-style: none; }
+.ssb-checks li { padding: 4px 0; border-bottom: 1px solid #f0f0f1; }
+.ssb-checks li.ssb-pass strong { color: #1a7f37; }
+.ssb-checks li.ssb-partial strong { color: #b45f06; }
+.ssb-checks li.ssb-fail strong { color: #b32d2e; }
+.ssb-inline { margin-right: 12px; }
+.ssb-pager { margin: 12px 0; }
+.ssb-pre { background: #f6f7f7; padding: 10px; max-height: 360px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
