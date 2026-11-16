@@ -8,3 +8,4 @@ delete_option('smartsite_seo_bridge_migrated');
 delete_option('smartsite_seo_bridge_history');
 delete_option('smartsite_seo_bridge_settings_backups');
 delete_option('smartsite_seo_bridge_snippets');
+delete_option('smartsite_seo_bridge_snippets_bundled');

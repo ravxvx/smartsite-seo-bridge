@@ -1,6 +1,10 @@
-# SmartSite SEO Bridge 1.5.0
+# SmartSite SEO Bridge 1.5.2
 
 Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API). Works on any WordPress site with Rank Math: the plugin ships no site-specific content.
+
+## What's new in 1.5.2
+
+- Bundled libraries in `bundled/<host>.json` (now `smartsite.ie` and `shamanic-reiki-healing.com`) load automatically when that site's library is empty, also on sites where 1.5.1 had already saved an empty library. Each bundled file is loaded once; a library the admin already has is never overwritten, and "Clear saved snippets" stays cleared. Applying snippets to pages is still a manual Preview → Apply step.
 
 ## What's new in 1.5.0
 
