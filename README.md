@@ -1,8 +1,24 @@
-# SmartSite SEO Bridge 1.4.0
+# SmartSite SEO Bridge 1.5.0
 
-Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API).
+Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API). Works on any WordPress site with Rank Math: the plugin ships no site-specific content.
 
-## What's new in 1.4.0
+## What's new in 1.5.0
+
+- **Works on any site.** Content snippets are no longer bundled in the plugin. Each site keeps its own snippet library (option `smartsite_seo_bridge_snippets`), loaded from a JSON file in Tools > SmartSite SEO Bridge > Content snippets.
+- Snippets can target a page by `slug` (portable between sites) or `id`. The admin table shows which page each snippet will go to before anything is applied.
+- A snippet file can name its site (`{"site": "example.com", "items": [...]}`); it is then refused on any other host.
+- The previous SmartSite IT intros moved to `examples/smartsite-seo-intros.json` (not part of the plugin ZIP). Load that file only on the site it was written for.
+
+### Snippet file format
+```json
+{"site": "example.com", "items": [
+  {"slug": "about", "key": "seo-intro", "position": "start", "keyword": "grounding sheets",
+   "html": "<h2>Grounding sheets: the short version</h2><p>…</p>"}
+]}
+```
+A plain list of items (without `site`) is also accepted. `position` is `start` or `end`.
+
+## 1.4.0
 
 - Content snippets tab: add or remove marked SEO intros (bundled in snippets/seo-intros.json) at the start of posts.
 
@@ -34,12 +50,15 @@ Full control of Rank Math SEO for administrators and connected tools (Jetpack / 
 | `GET /history`, `POST /history/{id}/undo` | change history |
 | `GET/POST /settings/{group}` | `{"values": {...}, "dry_run": true}` |
 | `GET /settings-backups`, `POST /settings-backups/{id}/restore` | backups |
+| `GET /snippets` | this site's snippet library with the page each item resolves to |
+| `POST /snippets` | `{"dry_run": true}` apply the library; `{"remove": true}` remove it; optional `items` for a one-off list |
+| `POST /snippets/library` | save the library: `{"library": [...]}` or `{"library": {"site": "...", "items": [...]}}`; `[]` clears |
 | `GET/POST /redirects` | `{"from":"/old/","to":"/new/","code":301}` |
 | `GET /status` | versions and capabilities |
 
 Example update:
 ```json
-{"title":"GLPI Plugins | SmartSite","description":"...","focus_keyword":"GLPI plugins",
+{"title":"Product name | Your Site","description":"...","focus_keyword":"product name",
  "schema":{"FAQPage":{"questions":[{"question":"Is it free?","answer":"Yes."}]}}}
 ```
 An empty string (or `null` for a schema) removes a field.
@@ -48,4 +67,6 @@ An empty string (or `null` for a schema) removes a field.
 Administrators only (`manage_options`), REST nonce, no tokens stored. Settings changes are validated, backed up and reversible.
 
 ## Install
-Plugins > Add New > Upload Plugin (replace 1.2.0) > activate.
+Plugins > Add New > Upload Plugin > choose `dist/smartsite-seo-bridge.zip` (replace the installed version) > activate.
+
+Build the ZIP: `./build.sh` (packs the plugin files only; `examples/` and this README stay out).
