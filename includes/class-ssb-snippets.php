@@ -21,8 +21,24 @@ final class SSB_Snippets {
 
     /** The library saved for this site. */
     public static function library() {
-        $data = get_option(self::OPTION, array());
+        $data = get_option(self::OPTION, null);
+        if ($data === null) {
+            $data = self::import_bundled();
+        }
         return is_array($data) ? array_values($data) : array();
+    }
+
+    /** First use only: loads bundled/<this host>.json when the plugin ships a library for this site. */
+    private static function import_bundled() {
+        $file = SSB_DIR . 'bundled/' . self::host(home_url()) . '.json';
+        $items = array();
+        if (is_readable($file)) {
+            $json = json_decode((string) file_get_contents($file), true);
+            $clean = is_array($json) ? self::validate($json) : array();
+            $items = is_wp_error($clean) ? array() : $clean;
+        }
+        update_option(self::OPTION, $items, false);
+        return $items;
     }
 
     private static function host($url) {

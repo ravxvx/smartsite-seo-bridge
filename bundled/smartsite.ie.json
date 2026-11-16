@@ -1,0 +1,138 @@
+{
+ "site": "smartsite.ie",
+ "items": [
+  {
+   "slug": "migrate-business-infrastructure-to-cloud",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "migrate business infrastructure to cloud",
+   "html": "<h2>Migrate business infrastructure to cloud: the short version</h2>\n<p>Planning to migrate business infrastructure to cloud is mostly about preparation: knowing what you run today, what depends on what, and how you will test and roll back. This guide covers the steps from assessment to cutover.</p>\n<p>For more on migrate business infrastructure to cloud, see the <a href=\"https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/migrate/\" target=\"_blank\" rel=\"noopener\">Microsoft's cloud migration guidance</a>, or read about our <a href=\"/server-cloud/\">Linux VPS hosting and cloud services</a>.</p>"
+  },
+  {
+   "slug": "business-it-support-cost-ireland",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "business IT support cost Ireland",
+   "html": "<h2>Business IT support cost Ireland: the short version</h2>\n<p>Business IT support cost Ireland varies with the number of users, the systems you rely on and the response times you need. This article explains the common pricing models and what to ask before you sign anything.</p>\n<p>For more on business IT support cost Ireland, see the <a href=\"https://www.localenterprise.ie/\" target=\"_blank\" rel=\"noopener\">Local Enterprise Offices</a>, or read about our <a href=\"/it-solutions/\">IT services</a>.</p>"
+  },
+  {
+   "slug": "proxmox-ve-server-virtualisation-guide",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "Proxmox VE virtualisation",
+   "html": "<h2>Proxmox VE virtualisation: the short version</h2>\n<p>Proxmox VE virtualisation lets a small business run several virtual machines and Linux containers on one or more servers, managed from a single web interface. This guide explains how it works and what to plan before you start.</p>\n<p>For more on Proxmox VE virtualisation, see the <a href=\"https://pve.proxmox.com/pve-docs/\" target=\"_blank\" rel=\"noopener\">Proxmox VE documentation</a>, or read about our <a href=\"/containers-virtualisation/\">containers and virtualisation services</a>.</p>"
+  },
+  {
+   "slug": "wazuh-open-source-security-monitoring",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "Wazuh security monitoring",
+   "html": "<h2>Wazuh security monitoring: the short version</h2>\n<p>Wazuh security monitoring collects events and logs from servers and endpoints so a small team can see what is happening and respond to threats. This guide explains what the platform does and what it needs to be useful.</p>\n<p>For more on Wazuh security monitoring, see the <a href=\"https://wazuh.com/\" target=\"_blank\" rel=\"noopener\">Wazuh project</a>, or read about our <a href=\"/security-connectivity/\">IT security services</a>.</p>"
+  },
+  {
+   "slug": "network-security-small-business-guide",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "network security for small businesses",
+   "html": "<h2>Network security for small businesses: the short version</h2>\n<p>Network security for small businesses starts with a few well-chosen controls: a properly configured firewall, separated networks, secure Wi-Fi and remote access, and monitoring. This guide explains them in plain language.</p>\n<p>For more on network security for small businesses, see the <a href=\"https://www.ncsc.gov.ie/\" target=\"_blank\" rel=\"noopener\">National Cyber Security Centre</a>, or read about our <a href=\"/security-connectivity/\">security and connectivity services</a>.</p>"
+  },
+  {
+   "slug": "reliable-it-infrastructure-small-business",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "small business IT infrastructure",
+   "html": "<h2>Small business IT infrastructure: the short version</h2>\n<p>Small business IT infrastructure is the set of devices, networks, servers, cloud services and support that your team depends on every day. This guide explains how to plan it so it stays reliable as the business grows.</p>\n<p>For more on small business IT infrastructure, see the <a href=\"https://www.localenterprise.ie/\" target=\"_blank\" rel=\"noopener\">Local Enterprise Offices</a>, or read about our <a href=\"/it-infrastructure/\">IT infrastructure services</a>.</p>"
+  },
+  {
+   "slug": "docker-containers-small-business-guide",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "Docker containers for small business",
+   "html": "<h2>Docker containers for small business: the short version</h2>\n<p>Docker containers for small business can make applications easier to deploy, move and update, but they also add things to secure and back up. This guide explains when containers help and how to run them responsibly.</p>\n<p>For more on Docker containers for small business, see the <a href=\"https://docs.docker.com/get-started/\" target=\"_blank\" rel=\"noopener\">Docker documentation</a>, or read about our <a href=\"/containers-virtualisation/\">Docker and virtualisation services</a>.</p>"
+  },
+  {
+   "slug": "secure-linux-server-15-steps",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "how to secure a Linux server",
+   "html": "<h2>How to secure a Linux server: the short version</h2>\n<p>Knowing how to secure a Linux server is one of the most useful skills for anyone running business systems. The steps below cover the essentials in a sensible order, from access and updates to logging and backups.</p>\n<p>For more on how to secure a Linux server, see the <a href=\"https://ubuntu.com/server/docs\" target=\"_blank\" rel=\"noopener\">Ubuntu Server documentation</a>, or read about our <a href=\"/server-cloud/\">Linux VPS hosting</a>.</p>"
+  },
+  {
+   "slug": "cloud-hosting-vs-vps-hosting",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "cloud hosting vs VPS hosting",
+   "html": "<h2>Cloud hosting vs VPS hosting: the short version</h2>\n<p>Cloud hosting vs VPS hosting is a common question when a website or application outgrows shared hosting. This article compares cost, control, scaling and reliability so you can choose with confidence.</p>\n<p>For more on cloud hosting vs VPS hosting, see the <a href=\"https://en.wikipedia.org/wiki/Virtual_private_server\" target=\"_blank\" rel=\"noopener\">virtual private servers</a>, or read about our <a href=\"/server-cloud/\">Linux VPS hosting and cloud services</a>.</p>"
+  },
+  {
+   "slug": "ubuntu-server-vs-debian",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "Ubuntu Server vs Debian",
+   "html": "<h2>Ubuntu Server vs Debian: the short version</h2>\n<p>Ubuntu Server vs Debian is a frequent choice when setting up a new Linux server. Both are well supported and widely used, and this guide compares how they differ so you can pick the one that suits your needs.</p>\n<p>For more on Ubuntu Server vs Debian, see the <a href=\"https://www.debian.org/doc/\" target=\"_blank\" rel=\"noopener\">Debian documentation</a>, or read about our <a href=\"/server-cloud/\">Linux server hosting</a>.</p>"
+  },
+  {
+   "slug": "active-directory-security-best-practices",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "Active Directory security best practices",
+   "html": "<h2>Active Directory security best practices: the short version</h2>\n<p>Active Directory security best practices help protect the system that controls who can sign in to your business network. This guide covers administrator accounts, policies, patching, monitoring and recovery.</p>\n<p>For more on Active Directory security best practices, see the <a href=\"https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/best-practices-for-securing-active-directory\" target=\"_blank\" rel=\"noopener\">Microsoft's guidance on securing Active Directory</a>, or read about our <a href=\"/it-infrastructure/\">IT infrastructure services</a>.</p>"
+  },
+  {
+   "slug": "linux-server-monitoring-tools",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "Linux server monitoring tools",
+   "html": "<h2>Linux server monitoring tools: the short version</h2>\n<p>Linux server monitoring tools show you how a server is behaving, so you can fix problems before users notice. This guide explains the metrics, logs and alerts worth watching and the kinds of tools that provide them.</p>\n<p>For more on Linux server monitoring tools, see the <a href=\"https://prometheus.io/docs/introduction/overview/\" target=\"_blank\" rel=\"noopener\">Prometheus overview</a>, or read about our <a href=\"/server-cloud/\">Linux hosting and server services</a>.</p>"
+  },
+  {
+   "slug": "managed-it-services-vs-in-house-it-support",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "managed IT services vs in-house IT",
+   "html": "<h2>Managed IT services vs in-house IT: the short version</h2>\n<p>Comparing managed IT services vs in-house IT is really a question of cost, skills, coverage and control. This article sets out the trade-offs so you can decide what fits your business.</p>\n<p>For more on managed IT services vs in-house IT, see the <a href=\"https://www.localenterprise.ie/\" target=\"_blank\" rel=\"noopener\">Local Enterprise Offices</a>, or read about our <a href=\"/it-solutions/\">IT services</a>.</p>"
+  },
+  {
+   "slug": "vmware-vs-proxmox",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "VMware vs Proxmox",
+   "html": "<h2>VMware vs Proxmox: the short version</h2>\n<p>VMware vs Proxmox is a common comparison for businesses reviewing their virtualisation platform. This guide looks at features, licensing, support and fit, so you can choose with the facts in front of you.</p>\n<p>For more on VMware vs Proxmox, see the <a href=\"https://pve.proxmox.com/pve-docs/\" target=\"_blank\" rel=\"noopener\">Proxmox VE documentation</a>, or read about our <a href=\"/containers-virtualisation/\">virtualisation services</a>.</p>"
+  },
+  {
+   "slug": "windows-server-vs-linux-server",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "Windows Server vs Linux Server",
+   "html": "<h2>Windows Server vs Linux Server: the short version</h2>\n<p>Windows Server vs Linux Server is less about which is better and more about which fits your applications, skills and budget. This guide compares licensing, management and security so you can decide.</p>\n<p>For more on Windows Server vs Linux Server, see the <a href=\"https://learn.microsoft.com/en-us/windows-server/\" target=\"_blank\" rel=\"noopener\">Windows Server documentation</a>, or read about our <a href=\"/server-cloud/\">Linux server hosting</a>.</p>"
+  },
+  {
+   "slug": "business-backup-disaster-recovery",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "business backup and disaster recovery",
+   "html": "<h2>Business backup and disaster recovery: the short version</h2>\n<p>Business backup and disaster recovery planning is what lets an organisation carry on after a failure, a mistake or a ransomware attack. This guide explains what to protect, how to test restores and how to plan recovery.</p>\n<p>For more on business backup and disaster recovery, see the <a href=\"https://www.cisa.gov/stopransomware\" target=\"_blank\" rel=\"noopener\">CISA ransomware guidance</a>, or read about our <a href=\"/it-infrastructure/\">IT infrastructure services</a>.</p>"
+  },
+  {
+   "slug": "it-infrastructure-checklist-growing-business",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "IT infrastructure checklist",
+   "html": "<h2>IT infrastructure checklist: the short version</h2>\n<p>An IT infrastructure checklist gives a growing business a simple way to review servers, networks, security, backups and support before small problems become expensive ones. Use the list below as a starting point.</p>\n<p>For more on IT infrastructure checklist, see the <a href=\"https://www.ncsc.gov.ie/\" target=\"_blank\" rel=\"noopener\">National Cyber Security Centre</a>, or read about our <a href=\"/it-infrastructure/\">IT infrastructure services</a>.</p>"
+  },
+  {
+   "slug": "linux-server-management-business-guide",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "Linux server management",
+   "html": "<h2>Linux server management: the short version</h2>\n<p>Linux server management covers the routine work that keeps systems secure and reliable: updates, users, monitoring, backups and documentation. This practical guide explains how a business can approach it.</p>\n<p>For more on Linux server management, see the <a href=\"https://ubuntu.com/server/docs\" target=\"_blank\" rel=\"noopener\">Ubuntu Server documentation</a>, or read about our <a href=\"/server-cloud/\">Linux hosting and server services</a>.</p>"
+  },
+  {
+   "slug": "glpi-vs-snipe-it-asset-management",
+   "key": "seo-intro",
+   "position": "start",
+   "keyword": "GLPI vs Snipe-IT",
+   "html": "<h2>GLPI vs Snipe-IT: the short version</h2>\n<p>GLPI vs Snipe-IT is a common comparison for organisations choosing an open-source IT asset management system. This guide looks at how each handles assets, support requests and day-to-day use.</p>\n<p>For more on GLPI vs Snipe-IT, see the <a href=\"https://glpi-project.org/\" target=\"_blank\" rel=\"noopener\">GLPI project</a>, or read about our <a href=\"/open-source-solutions/\">open source business solutions</a>.</p>"
+  }
+ ]
+}
