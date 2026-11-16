@@ -87,6 +87,7 @@
     function snippetsTab() {
         var out = h('div');
         var lib = h('div');
+        content.appendChild(h('p', { class: 'description', text: 'Works on any site: "Generate from Rank Math" writes an intro for every published page or post that has a Rank Math focus keyword and description but does not mention the keyword near the top. Nothing changes on the pages until you press Apply. You can also load a JSON file made for this site.' }));
         content.appendChild(h('p', { class: 'description', text: 'Snippets are saved for this site only. Load a JSON file made for this site, check which page each snippet will go to, then preview and apply. Each snippet targets a page by "slug" (works on any site) or "id", is marked, applied only once and can be removed again; WordPress also keeps a revision.' }));
 
         function resultTable(rows) {
@@ -150,6 +151,17 @@
             reader.readAsText(f);
         });
 
+        function generate() {
+            say('Reading Rank Math data…', true);
+            api('snippets/generate', 'POST', {}).then(function (d) {
+                showLibrary(d.items || []);
+                out.innerHTML = '';
+                out.appendChild(resultTable(d.results || []));
+                say('Generated ' + d.generated + ' intro(s) from Rank Math. Check them, then press Preview and Apply.', true);
+            }).catch(fail);
+        }
+
+        content.appendChild(h('p', {}, h('button', { type: 'button', class: 'button button-primary', text: 'Generate from Rank Math', onclick: generate })));
         content.appendChild(h('p', {}, h('label', {}, 'Load snippet file (JSON): ', file), ' ',
             h('button', { type: 'button', class: 'button', text: 'Clear saved snippets', onclick: function () { if (confirm('Clear the saved snippets for this site? Snippets already in posts stay until you remove them.')) { saveLibrary([]); } } })));
         content.appendChild(lib);

@@ -68,6 +68,13 @@ final class SSB_REST {
                 return self::out(SSB_Snippets::apply($items, !empty($p['dry_run'])));
             }),
         ));
+        // Build SEO intros from this site's own Rank Math focus keywords and descriptions. {"dry_run": true} only reports.
+        register_rest_route(self::NS, '/snippets/generate', array(
+            'methods' => WP_REST_Server::CREATABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
+                $p = $r->get_json_params();
+                return self::out(SSB_Snippets::generate(is_array($p) && !empty($p['dry_run'])));
+            },
+        ));
         // Save this site's snippet library: a list of items, or {"site": "example.com", "items": [...]}. [] clears it.
         register_rest_route(self::NS, '/snippets/library', array(
             'methods' => WP_REST_Server::EDITABLE, 'permission_callback' => $admin, 'callback' => function ($r) {

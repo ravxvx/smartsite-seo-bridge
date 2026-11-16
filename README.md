@@ -1,10 +1,15 @@
-# SmartSite SEO Bridge 1.5.2
+# SmartSite SEO Bridge 1.6.0
 
 Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API). Works on any WordPress site with Rank Math: the plugin ships no site-specific content.
 
+## What's new in 1.6.0
+
+- **Generate from Rank Math** (Content snippets tab, or `POST /wp-json/smartsite-seo/v1/snippets/generate`, `{"dry_run": true}` to only report). Works on any site with no JSON file: for each published page or post with a Rank Math focus keyword and a plain description, where the keyword is not yet in the first 10% of the text (at least 60 words), it saves an intro `<p><strong>Keyword:</strong> description</p>` to the library. Noindex content and pages that already have an intro are skipped. Regenerating replaces only earlier generated items. Pages change only after Preview → Apply, and Remove takes the intros out again.
+- The site-specific `shamanic-reiki-healing.com` file from 1.5.2 was removed again; that site uses Generate instead.
+
 ## What's new in 1.5.2
 
-- Bundled libraries in `bundled/<host>.json` (now `smartsite.ie` and `shamanic-reiki-healing.com`) load automatically when that site's library is empty, also on sites where 1.5.1 had already saved an empty library. Each bundled file is loaded once; a library the admin already has is never overwritten, and "Clear saved snippets" stays cleared. Applying snippets to pages is still a manual Preview → Apply step.
+- Bundled libraries in `bundled/<host>.json` (e.g. `smartsite.ie`) load automatically when that site's library is empty, also on sites where 1.5.1 had already saved an empty library. Each bundled file is loaded once; a library the admin already has is never overwritten, and "Clear saved snippets" stays cleared. Applying snippets to pages is still a manual Preview → Apply step.
 
 ## What's new in 1.5.0
 

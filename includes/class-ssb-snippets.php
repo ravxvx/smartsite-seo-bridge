@@ -106,6 +106,9 @@ final class SSB_Snippets {
             if ($id) {
                 $row['id'] = $id;
             }
+            if (!empty($it['generated'])) {
+                $row['generated'] = 1;
+            }
             if (isset($it['keyword']) && $it['keyword'] !== '') {
                 $row['keyword'] = SSB_Fields::clean_text($it['keyword']);
             }
@@ -122,6 +125,90 @@ final class SSB_Snippets {
         }
         update_option(self::OPTION, $items, false);
         return array('saved' => count($items), 'items' => self::describe($items));
+    }
+
+    /**
+     * Builds an SEO intro for every published page and post that has a Rank Math focus keyword and
+     * description but does not mention the keyword near the top of its content (the Rank Math
+     * "keyword in introduction" test). Works on any site: the text comes from that site's own Rank Math
+     * data. The result is saved to the library (replacing earlier generated items, keeping items loaded
+     * from a file for other pages); nothing is added to pages until Apply.
+     */
+    public static function generate($dry_run = false) {
+        $types = get_post_types(array('public' => true), 'names');
+        unset($types['attachment']);
+        $ids = get_posts(array(
+            'post_type' => array_values($types),
+            'post_status' => 'publish',
+            'posts_per_page' => self::MAX_ITEMS,
+            'fields' => 'ids',
+            'suppress_filters' => true,
+            'meta_query' => array(array('key' => 'rank_math_focus_keyword', 'value' => '', 'compare' => '!=')),
+        ));
+        $made = array();
+        $report = array();
+        foreach ($ids as $id) {
+            $post = get_post($id);
+            $kw = trim((string) strtok((string) get_post_meta($id, 'rank_math_focus_keyword', true), ','));
+            $desc = trim((string) get_post_meta($id, 'rank_math_description', true));
+            $robots = (array) get_post_meta($id, 'rank_math_robots', true);
+            $row = array('id' => (int) $id, 'slug' => $post->post_name, 'title' => get_the_title($post), 'keyword' => $kw);
+            if (in_array('noindex', $robots, true)) {
+                $row['state'] = 'skipped: noindex';
+            } elseif ($desc === '' || strpos($desc, '%') !== false) {
+                $row['state'] = 'skipped: no plain Rank Math description';
+            } elseif (strpos($post->post_content, '<!-- ssb-snippet:seo-intro -->') !== false) {
+                $row['state'] = 'skipped: intro already on the page';
+            } elseif (self::keyword_in_intro($post->post_content, $kw)) {
+                $row['state'] = 'skipped: keyword already in the introduction';
+            } else {
+                $label = function_exists('mb_convert_case') ? mb_convert_case($kw, MB_CASE_TITLE, 'UTF-8') : ucwords($kw);
+                $made[] = array(
+                    'id' => (int) $id,
+                    'key' => 'seo-intro',
+                    'position' => 'start',
+                    'keyword' => $kw,
+                    'html' => '<p class="ssb-intro"><strong>' . esc_html($label) . ':</strong> ' . esc_html($desc) . '</p>',
+                );
+                $row['state'] = 'intro generated';
+            }
+            $report[] = $row;
+        }
+        if (!$dry_run) {
+            $keep = array();
+            foreach (self::library() as $it) {
+                if (!empty($it['generated'])) {
+                    continue;
+                }
+                $keep[] = $it;
+            }
+            $taken = array();
+            foreach (self::describe($keep) as $it) {
+                if ($it['target_id'] && $it['key'] === 'seo-intro') {
+                    $taken[$it['target_id']] = true;
+                }
+            }
+            foreach ($made as $it) {
+                if (empty($taken[$it['id']])) {
+                    $it['generated'] = 1;
+                    $keep[] = $it;
+                }
+            }
+            update_option(self::OPTION, array_slice($keep, 0, self::MAX_ITEMS), false);
+        }
+        return array('dry_run' => (bool) $dry_run, 'generated' => count($made), 'results' => $report, 'items' => self::describe(self::library()));
+    }
+
+    /** True when the keyword appears in the first 10% of the visible text (at least the first 60 words). */
+    private static function keyword_in_intro($content, $kw) {
+        if ($kw === '') {
+            return true;
+        }
+        $text = trim(preg_replace('/\s+/u', ' ', wp_strip_all_tags(strip_shortcodes((string) $content))));
+        $words = preg_split('/\s+/u', $text);
+        $n = max(60, (int) ceil(count($words) * 0.1));
+        $intro = implode(' ', array_slice($words, 0, $n));
+        return stripos($intro, $kw) !== false;
     }
 
     /** Library items with the post each one resolves to on this site, so the admin can check before applying. */
