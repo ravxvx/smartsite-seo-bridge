@@ -55,16 +55,28 @@ final class SSB_REST {
         ));
         register_rest_route(self::NS, '/snippets', array(
             array('methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function () {
-                return self::out(array('items' => SSB_Snippets::bundled()));
+                return self::out(array('site' => home_url(), 'items' => SSB_Snippets::describe(SSB_Snippets::library())));
             }),
+            // Apply or remove: {"dry_run": true} uses the saved library; "items" applies a one-off list instead.
             array('methods' => WP_REST_Server::CREATABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
                 $p = $r->get_json_params();
-                $items = isset($p['items']) && is_array($p['items']) ? $p['items'] : SSB_Snippets::bundled();
+                $p = is_array($p) ? $p : array();
+                $items = array_key_exists('items', $p) ? $p['items'] : null;
                 if (!empty($p['remove'])) {
                     return self::out(SSB_Snippets::remove($items));
                 }
                 return self::out(SSB_Snippets::apply($items, !empty($p['dry_run'])));
             }),
+        ));
+        // Save this site's snippet library: a list of items, or {"site": "example.com", "items": [...]}. [] clears it.
+        register_rest_route(self::NS, '/snippets/library', array(
+            'methods' => WP_REST_Server::EDITABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
+                $p = $r->get_json_params();
+                if (is_array($p) && isset($p['library'])) {
+                    $p = $p['library'];
+                }
+                return self::out(SSB_Snippets::save($p === null ? array() : $p));
+            },
         ));
         register_rest_route(self::NS, '/history', array(
             'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function ($r) {

@@ -86,23 +86,79 @@
     /* -------------------------------------------------------- snippets */
     function snippetsTab() {
         var out = h('div');
-        content.appendChild(h('p', { class: 'description', text: 'Adds the bundled SEO intro (heading, keyword sentence and a source link) to the start of selected posts. Each snippet is marked, applied only once and can be removed again; WordPress also keeps a revision.' }));
+        var lib = h('div');
+        content.appendChild(h('p', { class: 'description', text: 'Snippets are saved for this site only. Load a JSON file made for this site, check which page each snippet will go to, then preview and apply. Each snippet targets a page by "slug" (works on any site) or "id", is marked, applied only once and can be removed again; WordPress also keeps a revision.' }));
+
+        function resultTable(rows) {
+            var t = h('table', { class: 'widefat striped' }, h('thead', {}, h('tr', {}, h('th', { text: 'ID' }), h('th', { text: 'Slug' }), h('th', { text: 'Title' }), h('th', { text: 'Result' }))));
+            var tb = h('tbody');
+            rows.forEach(function (r) { tb.appendChild(h('tr', {}, h('td', { text: r.id || '' }), h('td', { text: r.slug || '' }), h('td', { text: r.title || '' }), h('td', { text: r.state }))); });
+            t.appendChild(tb);
+            return t;
+        }
+
+        function showLibrary(items) {
+            lib.innerHTML = '';
+            if (!items.length) {
+                lib.appendChild(h('p', { text: 'No snippets saved for this site yet.' }));
+                return;
+            }
+            var t = h('table', { class: 'widefat striped' }, h('thead', {}, h('tr', {}, h('th', { text: 'Target' }), h('th', { text: 'Goes to' }), h('th', { text: 'Key' }), h('th', { text: 'Position' }), h('th', { text: 'Keyword' }))));
+            var tb = h('tbody');
+            items.forEach(function (it) {
+                var target = it.slug ? 'slug: ' + it.slug : 'id: ' + it.id;
+                var goes = it.target_id ? h('a', { href: it.target_url, target: '_blank', text: '#' + it.target_id + ' ' + it.target_title }) : h('strong', { text: 'not found on this site' });
+                tb.appendChild(h('tr', {}, h('td', { text: target }), h('td', {}, goes), h('td', { text: it.key }), h('td', { text: it.position }), h('td', { text: it.keyword || '' })));
+            });
+            t.appendChild(tb);
+            lib.appendChild(h('h3', { text: 'Saved snippets (' + items.length + ')' }));
+            lib.appendChild(t);
+        }
+
+        function loadLibrary() {
+            api('snippets').then(function (d) { showLibrary(d.items || []); }).catch(fail);
+        }
+
+        function saveLibrary(data) {
+            say('Saving…', true);
+            api('snippets/library', 'POST', { library: data }).then(function (d) {
+                showLibrary(d.items || []);
+                say('Saved ' + d.saved + ' snippet(s) for this site. Check the "Goes to" column before applying.', true);
+            }).catch(fail);
+        }
+
         function run(dry, remove) {
             say('Working…', true);
             api('snippets', 'POST', { dry_run: dry, remove: remove }).then(function (d) {
                 out.innerHTML = '';
-                var t = h('table', { class: 'widefat striped' }, h('thead', {}, h('tr', {}, h('th', { text: 'ID' }), h('th', { text: 'Title' }), h('th', { text: 'Result' }))));
-                var tb = h('tbody');
-                d.results.forEach(function (r) { tb.appendChild(h('tr', {}, h('td', { text: r.id }), h('td', { text: r.title }), h('td', { text: r.state }))); });
-                t.appendChild(tb); out.appendChild(t);
+                out.appendChild(resultTable(d.results || []));
                 say(dry ? 'Preview only, nothing changed.' : 'Done.', true);
             }).catch(fail);
         }
+
+        var file = h('input', { type: 'file', accept: '.json,application/json' });
+        file.addEventListener('change', function () {
+            var f = file.files && file.files[0];
+            if (!f) { return; }
+            var reader = new FileReader();
+            reader.onload = function () {
+                var data;
+                try { data = JSON.parse(reader.result); } catch (e) { say('This file is not valid JSON.', false); return; }
+                saveLibrary(data);
+                file.value = '';
+            };
+            reader.readAsText(f);
+        });
+
+        content.appendChild(h('p', {}, h('label', {}, 'Load snippet file (JSON): ', file), ' ',
+            h('button', { type: 'button', class: 'button', text: 'Clear saved snippets', onclick: function () { if (confirm('Clear the saved snippets for this site? Snippets already in posts stay until you remove them.')) { saveLibrary([]); } } })));
+        content.appendChild(lib);
         content.appendChild(h('p', {},
             h('button', { type: 'button', class: 'button', text: 'Preview', onclick: function () { run(true, false); } }), ' ',
-            h('button', { type: 'button', class: 'button button-primary', text: 'Apply bundled snippets', onclick: function () { if (confirm('Add the bundled snippets to the listed posts?')) { run(false, false); } } }), ' ',
-            h('button', { type: 'button', class: 'button', text: 'Remove bundled snippets', onclick: function () { if (confirm('Remove the bundled snippets again?')) { run(false, true); } } })));
+            h('button', { type: 'button', class: 'button button-primary', text: 'Apply saved snippets', onclick: function () { if (confirm('Add the saved snippets to the pages listed under "Goes to"?')) { run(false, false); } } }), ' ',
+            h('button', { type: 'button', class: 'button', text: 'Remove saved snippets', onclick: function () { if (confirm('Remove the saved snippets from those pages?')) { run(false, true); } } })));
         content.appendChild(out);
+        loadLibrary();
     }
 
     /* ------------------------------------------------------------ export */
