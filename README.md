@@ -1,8 +1,12 @@
-# SmartSite SEO Bridge 1.3.1
+# SmartSite SEO Bridge 1.4.0
 
 Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API).
 
-## What's new in 1.3.1
+## What's new in 1.4.0
+
+- Content snippets tab: add or remove marked SEO intros (bundled in snippets/seo-intros.json) at the start of posts.
+
+## 1.3.1
 
 - Audit tab: Export PDF (print view), CSV and JSON of every item with score, keyword, words and each failed check with a fix tip.
 

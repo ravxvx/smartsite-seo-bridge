@@ -53,6 +53,19 @@ final class SSB_REST {
                 return self::out(SSB_Fields::update_term(sanitize_key($r['taxonomy']), absint($r['id']), $r->get_json_params()));
             }),
         ));
+        register_rest_route(self::NS, '/snippets', array(
+            array('methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function () {
+                return self::out(array('items' => SSB_Snippets::bundled()));
+            }),
+            array('methods' => WP_REST_Server::CREATABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
+                $p = $r->get_json_params();
+                $items = isset($p['items']) && is_array($p['items']) ? $p['items'] : SSB_Snippets::bundled();
+                if (!empty($p['remove'])) {
+                    return self::out(SSB_Snippets::remove($items));
+                }
+                return self::out(SSB_Snippets::apply($items, !empty($p['dry_run'])));
+            }),
+        ));
         register_rest_route(self::NS, '/history', array(
             'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
                 return self::out(array('entries' => SSB_History::summarise($r['limit'] ? (int) $r['limit'] : 50)));

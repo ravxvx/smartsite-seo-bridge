@@ -49,6 +49,7 @@
         ['audit', 'Audit & edit'],
         ['history', 'History'],
         ['settings', 'Global settings'],
+        ['snippets', 'Content snippets'],
         ['redirects', 'Redirects']
     ];
     var current = 'audit';
@@ -62,7 +63,7 @@
             a.className = 'nav-tab' + (a.getAttribute('data-tab') === tab ? ' nav-tab-active' : '');
         });
         content.innerHTML = '';
-        ({ audit: auditTab, history: historyTab, settings: settingsTab, redirects: redirectsTab })[tab]();
+        ({ audit: auditTab, history: historyTab, settings: settingsTab, redirects: redirectsTab, snippets: snippetsTab })[tab]();
     }
     tabs.forEach(function (t) {
         nav.appendChild(h('a', { href: '#', 'data-tab': t[0], class: 'nav-tab', text: t[1], onclick: function (e) { e.preventDefault(); show(t[0]); } }));
@@ -80,6 +81,29 @@
         return b;
     }
 
+
+
+    /* -------------------------------------------------------- snippets */
+    function snippetsTab() {
+        var out = h('div');
+        content.appendChild(h('p', { class: 'description', text: 'Adds the bundled SEO intro (heading, keyword sentence and a source link) to the start of selected posts. Each snippet is marked, applied only once and can be removed again; WordPress also keeps a revision.' }));
+        function run(dry, remove) {
+            say('Working…', true);
+            api('snippets', 'POST', { dry_run: dry, remove: remove }).then(function (d) {
+                out.innerHTML = '';
+                var t = h('table', { class: 'widefat striped' }, h('thead', {}, h('tr', {}, h('th', { text: 'ID' }), h('th', { text: 'Title' }), h('th', { text: 'Result' }))));
+                var tb = h('tbody');
+                d.results.forEach(function (r) { tb.appendChild(h('tr', {}, h('td', { text: r.id }), h('td', { text: r.title }), h('td', { text: r.state }))); });
+                t.appendChild(tb); out.appendChild(t);
+                say(dry ? 'Preview only, nothing changed.' : 'Done.', true);
+            }).catch(fail);
+        }
+        content.appendChild(h('p', {},
+            h('button', { type: 'button', class: 'button', text: 'Preview', onclick: function () { run(true, false); } }), ' ',
+            h('button', { type: 'button', class: 'button button-primary', text: 'Apply bundled snippets', onclick: function () { if (confirm('Add the bundled snippets to the listed posts?')) { run(false, false); } } }), ' ',
+            h('button', { type: 'button', class: 'button', text: 'Remove bundled snippets', onclick: function () { if (confirm('Remove the bundled snippets again?')) { run(false, true); } } })));
+        content.appendChild(out);
+    }
 
     /* ------------------------------------------------------------ export */
     function fetchAll(type, status) {
