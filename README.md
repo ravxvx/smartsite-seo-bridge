@@ -1,8 +1,12 @@
-# SmartSite SEO Bridge 1.3.0
+# SmartSite SEO Bridge 1.3.1
 
 Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API).
 
-## What's new in 1.3.0
+## What's new in 1.3.1
+
+- Audit tab: Export PDF (print view), CSV and JSON of every item with score, keyword, words and each failed check with a fix tip.
+
+## 1.3.0
 - **SEO audit with estimated score** (target 81+, Rank Math shows green above 80): focus keyword in title / description / URL / first 10% / content / subheading / image alt, content length, density, links, unique keyword, title and description length. Every failed check has a tip.
   The score is an estimate; Rank Math computes its own score only in the editor.
 - **Fixed:** `sanitize_text_field` removed `%date%`, `%category%` and similar Rank Math variables. A safe sanitizer keeps them.
@@ -41,7 +45,3 @@ Administrators only (`manage_options`), REST nonce, no tokens stored. Settings c
 
 ## Install
 Plugins > Add New > Upload Plugin (replace 1.2.0) > activate.
-
-## Development
-Plain PHP (7.4+) and vanilla JS, no build step. Copy this folder to `wp-content/plugins/smartsite-seo-bridge/`.
-License: GPL-2.0-or-later.

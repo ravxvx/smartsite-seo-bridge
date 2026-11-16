@@ -80,6 +80,61 @@
         return b;
     }
 
+
+    /* ------------------------------------------------------------ export */
+    function fetchAll(type, status) {
+        var all = [];
+        function next(page) {
+            return api('items?audit=1&per_page=50&page=' + page + '&post_type=' + encodeURIComponent(type) + '&status=' + encodeURIComponent(status)).then(function (d) {
+                all = all.concat(d.items);
+                return page < d.pages ? next(page + 1) : all;
+            });
+        }
+        return next(1);
+    }
+    function download(name, mime, text) {
+        var blob = new Blob(['﻿' + text], { type: mime + ';charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = name;
+        document.body.appendChild(a); a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+    function csvCell(v) { v = String(v == null ? '' : v); return /[",\n\r;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+    function failed(i) { return (i.audit.checks || []).filter(function (c) { return c.status !== 'pass'; }); }
+    function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function exportReport(kind, type, status) {
+        say('Preparing export…', true);
+        fetchAll(type, status).then(function (items) {
+            var stamp = new Date().toISOString().slice(0, 10);
+            items.sort(function (a, b) { return a.audit.score - b.audit.score; });
+            if (kind === 'json') {
+                download('seo-audit-' + stamp + '.json', 'application/json', JSON.stringify({ generated: stamp, target: cfg.target, estimated: true, items: items.map(function (i) {
+                    return { id: i.post_id, type: i.post_type, status: i.status, title: i.post_title, url: i.url, score: i.audit.score, keyword: i.audit.keyword, words: i.audit.words, density: i.audit.density, seo_title: i.seo.title, seo_description: i.seo.description, rank_math_score: i.rank_math_score, checks: i.audit.checks };
+                }) }, null, 2));
+            } else if (kind === 'csv') {
+                var rows = [['ID', 'Type', 'Status', 'Title', 'URL', 'Estimated score', 'Focus keyword', 'Words', 'Density %', 'Rank Math score', 'Failed checks', 'What to fix']];
+                items.forEach(function (i) {
+                    var f = failed(i);
+                    rows.push([i.post_id, i.post_type, i.status, i.post_title, i.url, i.audit.score, i.audit.keyword, i.audit.words, i.audit.density, i.rank_math_score || '', f.map(function (c) { return c.label; }).join(' | '), f.map(function (c) { return c.tip || ''; }).filter(Boolean).join(' | ')]);
+                });
+                download('seo-audit-' + stamp + '.csv', 'text/csv', rows.map(function (r) { return r.map(csvCell).join(','); }).join('\r\n'));
+            } else {
+                var avg = items.length ? Math.round(items.reduce(function (a, i) { return a + i.audit.score; }, 0) / items.length) : 0;
+                var body = items.map(function (i) {
+                    var f = failed(i);
+                    return '<section><h2>' + esc(i.post_title) + ' <span class="s ' + i.audit.grade + '">' + i.audit.score + '%</span></h2><p class="m">ID ' + i.post_id + ' · ' + esc(i.post_type) + ' · ' + esc(i.status) + ' · keyword: <b>' + esc(i.audit.keyword || '(none)') + '</b> · ' + i.audit.words + ' words · ' + esc(i.url) + '</p>' +
+                        (f.length ? '<ul>' + f.map(function (c) { return '<li><b>' + (c.status === 'partial' ? '◐' : '✗') + ' ' + esc(c.label) + '</b>' + (c.tip ? ' — ' + esc(c.tip) : '') + '</li>'; }).join('') + '</ul>' : '<p>All checks passed.</p>') + '</section>';
+                }).join('');
+                var w = window.open('', '_blank');
+                if (!w) { say('Allow pop-ups for this site, then try again.', false); return; }
+                w.document.write('<!doctype html><meta charset="utf-8"><title>SEO audit ' + stamp + '</title><style>body{font:13px/1.45 sans-serif;margin:24px;color:#111}h1{margin:0 0 4px}h2{font-size:15px;margin:0}section{border-top:1px solid #ccc;padding:10px 0;break-inside:avoid}.m{color:#555;margin:2px 0 6px;word-break:break-all}ul{margin:4px 0 0 18px;padding:0}.s{color:#fff;border-radius:10px;padding:1px 8px;font-size:12px}.green{background:#1a7f37}.orange{background:#b45f06}.red{background:#b32d2e}</style><h1>SmartSite SEO audit</h1><p>' + stamp + ' · ' + items.length + ' items · average estimated score ' + avg + '% · target ' + cfg.target + '%+ (estimate, not the Rank Math editor score). Lowest first. Use Print → Save as PDF.</p>' + body);
+                w.document.close();
+                setTimeout(function () { w.print(); }, 400);
+            }
+            say('Export ready (' + items.length + ' items).', true);
+        }).catch(fail);
+    }
+
     function auditTab() {
         var typeSel = h('select');
         (cfg.types || []).forEach(function (t) { typeSel.appendChild(h('option', { value: t.slug, text: t.label })); });
@@ -119,6 +174,10 @@
             typeSel, statusSel, search,
             h('label', {}, below, ' only below ' + cfg.target + '%'),
             h('button', { type: 'button', class: 'button button-primary', text: 'Load', onclick: function () { load(1); } }),
+            ' ',
+            h('button', { type: 'button', class: 'button', text: 'Export PDF', title: 'All content, opens print view: Save as PDF', onclick: function () { exportReport('pdf', 'any', statusSel.value); } }),
+            h('button', { type: 'button', class: 'button', text: 'Export CSV', onclick: function () { exportReport('csv', 'any', statusSel.value); } }),
+            h('button', { type: 'button', class: 'button', text: 'Export JSON', onclick: function () { exportReport('json', 'any', statusSel.value); } }),
             ' ', summary));
         content.appendChild(h('table', { class: 'widefat striped ssb-table' },
             h('thead', {}, h('tr', {}, h('th', { text: 'Content' }), h('th', { text: 'Score' }), h('th', { text: 'Focus keyword' }), h('th', { text: 'Words' }), h('th', { text: 'Rank Math score' }), h('th'))),
