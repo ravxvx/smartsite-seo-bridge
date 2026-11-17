@@ -4,6 +4,12 @@
     var app = document.getElementById('ssb-app');
     if (!app) { return; }
 
+    function add(e, c) {
+        if (c == null || c === false) { return; }
+        if (Array.isArray(c)) { c.forEach(function (x) { add(e, x); }); return; }
+        e.appendChild(typeof c === 'object' ? c : document.createTextNode(String(c)));
+    }
+
     function h(tag, props) {
         var e = document.createElement(tag);
         props = props || {};
@@ -16,8 +22,7 @@
         });
         for (var i = 2; i < arguments.length; i++) {
             var c = arguments[i];
-            if (c == null || c === false) { continue; }
-            e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+            add(e, c);
         }
         return e;
     }

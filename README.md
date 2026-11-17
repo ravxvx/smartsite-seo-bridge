@@ -1,8 +1,12 @@
-# SmartSite SEO Bridge 1.8.1
+# SmartSite SEO Bridge 1.8.2
 
 Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API). Works on any WordPress site with Rank Math: the plugin ships no site-specific content.
 
-## What's new in 1.8.1
+## What's new in 1.8.2
+
+- Fixed Mail check and Site check tables failing with an appendChild error.
+
+## 1.8.1
 
 - Removed the bundled smartsite.ie library: no site-specific content or domain checks remain; existing saved libraries are kept.
 
