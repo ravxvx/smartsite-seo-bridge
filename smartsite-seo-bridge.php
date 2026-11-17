@@ -2,7 +2,7 @@
 /**
  * Plugin Name: SmartSite SEO Bridge
  * Description: Full control of Rank Math SEO for administrators and connected tools: REST meta fields, SEO audit with estimated score, schema, redirects, change history with undo, backed-up settings changes and an admin dashboard.
- * Version: 1.6.0
+ * Version: 1.7.0
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: SmartSite
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('SSB_VERSION', '1.6.0');
+define('SSB_VERSION', '1.7.0');
 define('SSB_FILE', __FILE__);
 define('SSB_DIR', plugin_dir_path(__FILE__));
 
@@ -24,6 +24,7 @@ require_once SSB_DIR . 'includes/class-ssb-audit.php';
 require_once SSB_DIR . 'includes/class-ssb-settings.php';
 require_once SSB_DIR . 'includes/class-ssb-redirects.php';
 require_once SSB_DIR . 'includes/class-ssb-snippets.php';
+require_once SSB_DIR . 'includes/class-ssb-diagnostics.php';
 require_once SSB_DIR . 'includes/class-ssb-rest.php';
 require_once SSB_DIR . 'includes/class-ssb-abilities.php';
 require_once SSB_DIR . 'includes/class-ssb-admin.php';

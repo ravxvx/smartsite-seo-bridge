@@ -50,6 +50,7 @@
         ['history', 'History'],
         ['settings', 'Global settings'],
         ['snippets', 'Content snippets'],
+        ['mail', 'Mail check'],
         ['redirects', 'Redirects']
     ];
     var current = 'audit';
@@ -63,7 +64,7 @@
             a.className = 'nav-tab' + (a.getAttribute('data-tab') === tab ? ' nav-tab-active' : '');
         });
         content.innerHTML = '';
-        ({ audit: auditTab, history: historyTab, settings: settingsTab, redirects: redirectsTab, snippets: snippetsTab })[tab]();
+        ({ audit: auditTab, history: historyTab, settings: settingsTab, redirects: redirectsTab, snippets: snippetsTab, mail: mailTab })[tab]();
     }
     tabs.forEach(function (t) {
         nav.appendChild(h('a', { href: '#', 'data-tab': t[0], class: 'nav-tab', text: t[1], onclick: function (e) { e.preventDefault(); show(t[0]); } }));
@@ -171,6 +172,43 @@
             h('button', { type: 'button', class: 'button', text: 'Remove saved snippets', onclick: function () { if (confirm('Remove the saved snippets from those pages?')) { run(false, true); } } })));
         content.appendChild(out);
         loadLibrary();
+    }
+
+
+    /* ------------------------------------------------------- mail check */
+    function mailTab() {
+        content.appendChild(h('p', { class: 'description', text: 'Read-only check of contact-form e-mail: Fluent Forms notifications, FluentSMTP settings and the latest mail log. Nothing is changed.' }));
+        var box = h('div');
+        content.appendChild(box);
+        function table(head, rows) {
+            var t = h('table', { class: 'widefat striped' }, h('thead', {}, h('tr', {}, head.map(function (c) { return h('th', { text: c }); }))));
+            var b = h('tbody');
+            rows.forEach(function (r) { b.appendChild(h('tr', {}, r.map(function (c) { return h('td', { text: c == null ? '' : String(c) }); }))); });
+            t.appendChild(b);
+            return t;
+        }
+        say('Checking…', true);
+        api('mail-check').then(function (d) {
+            say('', true);
+            box.appendChild(h('h3', { text: 'Findings' }));
+            var ul = h('ul');
+            d.findings.forEach(function (f) { ul.appendChild(h('li', { text: f })); });
+            box.appendChild(ul);
+            box.appendChild(h('h3', { text: 'Forms' }));
+            var rows = [];
+            d.forms.forEach(function (f) {
+                if (!f.notifications.length) { rows.push([f.id, f.title, f.entries, '(no notification)', '', '', '', '']); }
+                f.notifications.forEach(function (n) { rows.push([f.id, f.title, f.entries, n.name, n.enabled, n.send_to, n.from_email, n.conditions]); });
+            });
+            box.appendChild(table(['ID', 'Form', 'Entries', 'Notification', 'Enabled', 'Send to', 'From', 'Conditions'], rows));
+            box.appendChild(h('h3', { text: 'FluentSMTP connections' + (d.fluent_smtp_active ? '' : ' (plugin inactive)') }));
+            box.appendChild(table(['Provider', 'Sender e-mail', 'Sender name', 'Force from'], (d.smtp || []).map(function (c) { return [c.provider, c.sender_email, c.sender_name, c.force_from_email]; })));
+            box.appendChild(h('h3', { text: 'Latest mail log' }));
+            box.appendChild(table(['ID', 'Subject', 'To', 'Status', 'Time'], (d.recent_mail || []).map(function (m) { return [m.id, m.subject, m.to, m.status, m.time]; })));
+            box.appendChild(h('p', {}, h('button', { type: 'button', class: 'button', text: 'Download report (JSON)', onclick: function () {
+                download('mail-check-' + new Date().toISOString().slice(0, 10) + '.json', 'application/json', JSON.stringify(d, null, 2));
+            } })));
+        }).catch(fail);
     }
 
     /* ------------------------------------------------------------ export */

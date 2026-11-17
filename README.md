@@ -1,8 +1,12 @@
-# SmartSite SEO Bridge 1.6.0
+# SmartSite SEO Bridge 1.7.0
 
 Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API). Works on any WordPress site with Rank Math: the plugin ships no site-specific content.
 
-## What's new in 1.6.0
+## What's new in 1.7.0
+
+- Mail check tab: read-only check of Fluent Forms notifications, FluentSMTP settings and the latest mail log, with a JSON report.
+
+## 1.6.0
 
 - **Generate from Rank Math** (Content snippets tab, or `POST /wp-json/smartsite-seo/v1/snippets/generate`, `{"dry_run": true}` to only report). Works on any site with no JSON file: for each published page or post with a Rank Math focus keyword and a plain description, where the keyword is not yet in the first 10% of the text (at least 60 words), it saves an intro `<p><strong>Keyword:</strong> description</p>` to the library. Noindex content and pages that already have an intro are skipped. Regenerating replaces only earlier generated items. Pages change only after Preview → Apply, and Remove takes the intros out again.
 - The site-specific `shamanic-reiki-healing.com` file from 1.5.2 was removed again; that site uses Generate instead.

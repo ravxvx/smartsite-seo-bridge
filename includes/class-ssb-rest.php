@@ -85,6 +85,11 @@ final class SSB_REST {
                 return self::out(SSB_Snippets::save($p === null ? array() : $p));
             },
         ));
+        register_rest_route(self::NS, '/mail-check', array(
+            'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function () {
+                return self::out(SSB_Diagnostics::mail());
+            },
+        ));
         register_rest_route(self::NS, '/history', array(
             'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
                 return self::out(array('entries' => SSB_History::summarise($r['limit'] ? (int) $r['limit'] : 50)));
