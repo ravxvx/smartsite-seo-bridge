@@ -85,6 +85,16 @@ final class SSB_REST {
                 return self::out(SSB_Snippets::save($p === null ? array() : $p));
             },
         ));
+        register_rest_route(self::NS, '/images/plan', array(
+            'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function () {
+                return self::out(SSB_Images::plan());
+            },
+        ));
+        register_rest_route(self::NS, '/images/apply', array(
+            'methods' => WP_REST_Server::CREATABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
+                return self::out(SSB_Images::apply((array) $r->get_param('ids')));
+            },
+        ));
         register_rest_route(self::NS, '/mail-check', array(
             'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function () {
                 return self::out(SSB_Diagnostics::mail());

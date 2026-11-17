@@ -55,6 +55,7 @@
         ['history', 'History'],
         ['settings', 'Global settings'],
         ['snippets', 'Content snippets'],
+        ['images', 'Images'],
         ['mail', 'Mail check'],
         ['site', 'Site check'],
         ['redirects', 'Redirects']
@@ -70,7 +71,7 @@
             a.className = 'nav-tab' + (a.getAttribute('data-tab') === tab ? ' nav-tab-active' : '');
         });
         content.innerHTML = '';
-        ({ audit: auditTab, history: historyTab, settings: settingsTab, redirects: redirectsTab, snippets: snippetsTab, mail: mailTab, site: siteTab })[tab]();
+        ({ audit: auditTab, history: historyTab, settings: settingsTab, redirects: redirectsTab, snippets: snippetsTab, images: imagesTab, mail: mailTab, site: siteTab })[tab]();
     }
     tabs.forEach(function (t) {
         nav.appendChild(h('a', { href: '#', 'data-tab': t[0], class: 'nav-tab', text: t[1], onclick: function (e) { e.preventDefault(); show(t[0]); } }));
@@ -178,6 +179,34 @@
             h('button', { type: 'button', class: 'button', text: 'Remove saved snippets', onclick: function () { if (confirm('Remove the saved snippets from those pages?')) { run(false, true); } } })));
         content.appendChild(out);
         loadLibrary();
+    }
+
+
+    /* ------------------------------------------------------------ images */
+    function imagesTab() {
+        content.appendChild(h('p', { class: 'description', text: 'Puts the featured image into the content (with alt text containing the focus keyword) for published items that have no image in their content. Rank Math only counts images that are in the content. Nothing changes until you press Apply; each change is a normal edit and shows in the item revisions.' }));
+        var box = h('div');
+        content.appendChild(box);
+        say('Checking…', true);
+        api('images/plan').then(function (d) {
+            say('', true);
+            var t = h('table', { class: 'widefat striped' }, h('thead', {}, h('tr', {}, ['ID', 'Title', 'Keyword', 'Alt text to use', 'State'].map(function (c) { return h('th', { text: c }); }))));
+            var b = h('tbody');
+            d.items.forEach(function (r) { b.appendChild(h('tr', {}, [r.id, r.title, r.keyword, r.alt, r.state].map(function (c) { return h('td', { text: c == null ? '' : String(c) }); }))); });
+            t.appendChild(b);
+            box.appendChild(h('p', { text: d.ready + ' item(s) ready.' }));
+            box.appendChild(t);
+            if (d.ready) {
+                box.appendChild(h('p', {}, h('button', { type: 'button', class: 'button button-primary', text: 'Apply to ' + d.ready + ' item(s)', onclick: function () {
+                    if (!window.confirm('Insert the featured image into the content of ' + d.ready + ' item(s)?')) { return; }
+                    say('Applying…', true);
+                    api('images/apply', 'POST', { ids: [] }).then(function (r) {
+                        say('Done: ' + r.applied.length + ' item(s) updated.', true);
+                        content.innerHTML = ''; imagesTab();
+                    }).catch(fail);
+                } })));
+            }
+        }).catch(fail);
     }
 
 

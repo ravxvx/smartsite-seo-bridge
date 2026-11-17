@@ -95,3 +95,6 @@ Administrators only (`manage_options`), REST nonce, no tokens stored. Settings c
 Plugins > Add New > Upload Plugin > choose `dist/smartsite-seo-bridge.zip` (replace the installed version) > activate.
 
 Build the ZIP: `./build.sh` (packs the plugin files only; `examples/` and this README stay out).
+
+### 1.9.0
+- New "Images" tab: inserts the featured image into the content (alt text with the focus keyword) for published, indexable items whose content has no image. Preview first, apply on confirmation, normal WordPress revisions.
