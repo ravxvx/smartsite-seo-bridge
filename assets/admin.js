@@ -34,8 +34,20 @@
             headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
             body: data ? JSON.stringify(data) : undefined
         }).then(function (r) {
-            return r.json().catch(function () { return {}; }).then(function (j) {
-                if (!r.ok) { throw new Error(j.message || ('HTTP ' + r.status)); }
+            return r.text().then(function (txt) {
+                var j = null;
+                try { j = JSON.parse(txt); } catch (e) {
+                    // Another plugin printed a PHP notice before the JSON: use the JSON part if there is one.
+                    var at = txt.search(/[\[{]/);
+                    if (at > 0) { try { j = JSON.parse(txt.slice(at)); } catch (e2) { j = null; } }
+                }
+                if (!r.ok) { throw new Error((j && j.message) || ('HTTP ' + r.status)); }
+                if (j === null) {
+                    var snip = String(txt || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                    var err = new Error('The server returned an invalid response for ' + path.split('?')[0] + ' (HTTP ' + r.status + ', ' + String(txt || '').length + ' bytes)' + (snip ? ': “' + snip.slice(0, 220) + (snip.length > 220 ? '…' : '') + '”' : ': empty reply (timeout or PHP fatal error).'));
+                    err.invalid = true;
+                    throw err;
+                }
                 return j;
             });
         });
@@ -284,13 +296,37 @@
     /* ------------------------------------------------------------ export */
     function fetchAll(type, status) {
         var all = [];
-        function next(page) {
-            return api('items?audit=1&per_page=50&page=' + page + '&post_type=' + encodeURIComponent(type) + '&status=' + encodeURIComponent(status)).then(function (d) {
-                all = all.concat(d.items);
-                return page < d.pages ? next(page + 1) : all;
-            });
+        var skipped = [];
+        var pages = 1;
+        var per = 20;
+        var base = '&post_type=' + encodeURIComponent(type) + '&status=' + encodeURIComponent(status);
+        function keep(list) { all = all.concat((list || []).filter(function (i) { return i && i.audit; })); }
+        // One item at a time: only the items that really fail are skipped.
+        function oneByOne(ids, k) {
+            if (k >= ids.length) { return Promise.resolve(); }
+            return api('pages/' + ids[k] + '?audit=1').then(function (it) { keep([it]); }, function (e) { skipped.push(ids[k] + ' (' + (e.message || e).slice(0, 80) + ')'); })
+                .then(function () { return oneByOne(ids, k + 1); });
         }
-        return next(1);
+        function next(page) {
+            say('Preparing export… page ' + page + (pages > 1 ? ' / ' + pages : ''), true);
+            return api('items?audit=1&per_page=' + per + '&page=' + page + base).then(function (d) {
+                if (!d || !Array.isArray(d.items)) { throw new Error('page ' + page + ' did not return a list of items'); }
+                keep(d.items);
+                pages = d.pages || page;
+            }, function () {
+                // The audited page broke (notice, fatal or timeout): list the same page without audit, then audit each item alone.
+                say('Page ' + page + ' failed as a whole, checking its items one by one…', true);
+                return api('items?per_page=' + per + '&page=' + page + base).then(function (d) {
+                    if (!d || !Array.isArray(d.items)) { throw new Error('Export stopped: page ' + page + ' could not be listed.'); }
+                    pages = d.pages || page;
+                    return oneByOne(d.items.filter(Boolean).map(function (i) { return i.post_id; }), 0);
+                });
+            }).then(function () { return page < pages ? next(page + 1) : all; });
+        }
+        return next(1).then(function (items) {
+            items.skipped = skipped;
+            return items;
+        });
     }
     function download(name, mime, text) {
         var blob = new Blob(['﻿' + text], { type: mime + ';charset=utf-8' });
@@ -331,7 +367,7 @@
                 w.document.close();
                 setTimeout(function () { w.print(); }, 400);
             }
-            say('Export ready (' + items.length + ' items).', true);
+            say('Export ready (' + items.length + ' items).' + (items.skipped && items.skipped.length ? ' Skipped ' + items.skipped.length + ' item(s) the server could not audit: ' + items.skipped.join(', ') : ''), !(items.skipped && items.skipped.length));
         }).catch(fail);
     }
 
@@ -355,6 +391,8 @@
             tbody.innerHTML = '';
             api('items?audit=1&per_page=20&page=' + A.page + '&post_type=' + encodeURIComponent(A.type) + '&status=' + A.status + '&search=' + encodeURIComponent(A.search))
                 .then(function (d) {
+                    if (!d || !Array.isArray(d.items)) { throw new Error('The list did not load (invalid response). Try again.'); }
+                    d.items = d.items.filter(function (i) { return i && i.audit; });
                     var items = d.items.filter(function (i) { return !A.below || i.audit.score < cfg.target; });
                     var sum = 0;
                     d.items.forEach(function (i) { sum += i.audit.score; });
