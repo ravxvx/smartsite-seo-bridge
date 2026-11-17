@@ -16,43 +16,13 @@ if (!defined('ABSPATH')) {
  */
 final class SSB_Snippets {
     const OPTION = 'smartsite_seo_bridge_snippets';
-    const BUNDLED_OPTION = 'smartsite_seo_bridge_snippets_bundled';
     const MAX_ITEMS = 500;
     const MAX_HTML = 20000;
 
-    /** The library saved for this site. */
+    /** The library saved for this site (empty until the admin loads or generates one). */
     public static function library() {
-        $data = self::maybe_import_bundled(get_option(self::OPTION, null));
+        $data = get_option(self::OPTION, array());
         return is_array($data) ? array_values($data) : array();
-    }
-
-    /**
-     * Loads bundled/<this host>.json when the plugin ships a library for this site and that exact file
-     * has not been loaded before. A library the admin already has is never overwritten, and a library
-     * cleared on purpose stays empty (the file's hash is remembered in BUNDLED_OPTION).
-     */
-    private static function maybe_import_bundled($data) {
-        $file = SSB_DIR . 'bundled/' . self::host(home_url()) . '.json';
-        if (!is_readable($file)) {
-            if ($data === null) {
-                update_option(self::OPTION, array(), false);
-                return array();
-            }
-            return $data;
-        }
-        $hash = (string) md5_file($file);
-        if (get_option(self::BUNDLED_OPTION) === $hash) {
-            return $data === null ? array() : $data;
-        }
-        update_option(self::BUNDLED_OPTION, $hash, false);
-        if (is_array($data) && !empty($data)) {
-            return $data;
-        }
-        $json = json_decode((string) file_get_contents($file), true);
-        $clean = is_array($json) ? self::validate($json) : array();
-        $items = is_wp_error($clean) ? array() : $clean;
-        update_option(self::OPTION, $items, false);
-        return $items;
     }
 
     private static function host($url) {
