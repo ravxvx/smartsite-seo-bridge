@@ -1,6 +1,11 @@
-# SmartSite SEO Bridge 1.9.1
+# SmartSite SEO Bridge 1.9.2
 
 Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API). Works on any WordPress site with Rank Math: the plugin ships no site-specific content.
+
+## 1.9.2
+
+- Export no longer stops when one page of the list breaks on the server: that page is listed without the audit and each item is audited on its own; only items that really fail are skipped and named in the message.
+- An invalid server reply now shows its size and the start of what the server sent, so the cause (PHP notice, fatal error, timeout) is visible.
 
 ## 1.9.1
 

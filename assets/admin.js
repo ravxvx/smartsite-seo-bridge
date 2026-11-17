@@ -42,7 +42,12 @@
                     if (at > 0) { try { j = JSON.parse(txt.slice(at)); } catch (e2) { j = null; } }
                 }
                 if (!r.ok) { throw new Error((j && j.message) || ('HTTP ' + r.status)); }
-                if (j === null) { throw new Error('The server returned an invalid response for ' + path.split('?')[0] + ' (HTTP ' + r.status + '). Try again; if it repeats, a PHP notice or timeout on the site is breaking the reply.'); }
+                if (j === null) {
+                    var snip = String(txt || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                    var err = new Error('The server returned an invalid response for ' + path.split('?')[0] + ' (HTTP ' + r.status + ', ' + String(txt || '').length + ' bytes)' + (snip ? ': “' + snip.slice(0, 220) + (snip.length > 220 ? '…' : '') + '”' : ': empty reply (timeout or PHP fatal error).'));
+                    err.invalid = true;
+                    throw err;
+                }
                 return j;
             });
         });
@@ -291,17 +296,37 @@
     /* ------------------------------------------------------------ export */
     function fetchAll(type, status) {
         var all = [];
+        var skipped = [];
         var pages = 1;
+        var per = 20;
+        var base = '&post_type=' + encodeURIComponent(type) + '&status=' + encodeURIComponent(status);
+        function keep(list) { all = all.concat((list || []).filter(function (i) { return i && i.audit; })); }
+        // One item at a time: only the items that really fail are skipped.
+        function oneByOne(ids, k) {
+            if (k >= ids.length) { return Promise.resolve(); }
+            return api('pages/' + ids[k] + '?audit=1').then(function (it) { keep([it]); }, function (e) { skipped.push(ids[k] + ' (' + (e.message || e).slice(0, 80) + ')'); })
+                .then(function () { return oneByOne(ids, k + 1); });
+        }
         function next(page) {
             say('Preparing export… page ' + page + (pages > 1 ? ' / ' + pages : ''), true);
-            return api('items?audit=1&per_page=20&page=' + page + '&post_type=' + encodeURIComponent(type) + '&status=' + encodeURIComponent(status)).then(function (d) {
-                if (!d || !Array.isArray(d.items)) { throw new Error('Export stopped: page ' + page + ' did not return a list of items.'); }
-                all = all.concat(d.items.filter(function (i) { return i && i.audit; }));
+            return api('items?audit=1&per_page=' + per + '&page=' + page + base).then(function (d) {
+                if (!d || !Array.isArray(d.items)) { throw new Error('page ' + page + ' did not return a list of items'); }
+                keep(d.items);
                 pages = d.pages || page;
-                return page < pages ? next(page + 1) : all;
-            });
+            }, function () {
+                // The audited page broke (notice, fatal or timeout): list the same page without audit, then audit each item alone.
+                say('Page ' + page + ' failed as a whole, checking its items one by one…', true);
+                return api('items?per_page=' + per + '&page=' + page + base).then(function (d) {
+                    if (!d || !Array.isArray(d.items)) { throw new Error('Export stopped: page ' + page + ' could not be listed.'); }
+                    pages = d.pages || page;
+                    return oneByOne(d.items.filter(Boolean).map(function (i) { return i.post_id; }), 0);
+                });
+            }).then(function () { return page < pages ? next(page + 1) : all; });
         }
-        return next(1);
+        return next(1).then(function (items) {
+            items.skipped = skipped;
+            return items;
+        });
     }
     function download(name, mime, text) {
         var blob = new Blob(['﻿' + text], { type: mime + ';charset=utf-8' });
@@ -342,7 +367,7 @@
                 w.document.close();
                 setTimeout(function () { w.print(); }, 400);
             }
-            say('Export ready (' + items.length + ' items).', true);
+            say('Export ready (' + items.length + ' items).' + (items.skipped && items.skipped.length ? ' Skipped ' + items.skipped.length + ' item(s) the server could not audit: ' + items.skipped.join(', ') : ''), !(items.skipped && items.skipped.length));
         }).catch(fail);
     }
 
