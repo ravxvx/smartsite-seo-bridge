@@ -1,8 +1,12 @@
-# SmartSite SEO Bridge 1.7.0
+# SmartSite SEO Bridge 1.8.0
 
 Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API). Works on any WordPress site with Rank Math: the plugin ships no site-specific content.
 
-## What's new in 1.7.0
+## What's new in 1.8.0
+
+- Site check tab: read-only reports for site health, plugins and security, WooCommerce shop and indexing, with JSON download.
+
+## 1.7.0
 
 - Mail check tab: read-only check of Fluent Forms notifications, FluentSMTP settings and the latest mail log, with a JSON report.
 

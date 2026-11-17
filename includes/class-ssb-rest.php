@@ -90,6 +90,11 @@ final class SSB_REST {
                 return self::out(SSB_Diagnostics::mail());
             },
         ));
+        register_rest_route(self::NS, '/report/(?P<kind>[a-z]+)', array(
+            'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
+                return self::out(SSB_Diagnostics::report((string) $r['kind']));
+            },
+        ));
         register_rest_route(self::NS, '/history', array(
             'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
                 return self::out(array('entries' => SSB_History::summarise($r['limit'] ? (int) $r['limit'] : 50)));

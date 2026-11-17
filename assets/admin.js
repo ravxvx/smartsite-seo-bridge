@@ -51,6 +51,7 @@
         ['settings', 'Global settings'],
         ['snippets', 'Content snippets'],
         ['mail', 'Mail check'],
+        ['site', 'Site check'],
         ['redirects', 'Redirects']
     ];
     var current = 'audit';
@@ -64,7 +65,7 @@
             a.className = 'nav-tab' + (a.getAttribute('data-tab') === tab ? ' nav-tab-active' : '');
         });
         content.innerHTML = '';
-        ({ audit: auditTab, history: historyTab, settings: settingsTab, redirects: redirectsTab, snippets: snippetsTab, mail: mailTab })[tab]();
+        ({ audit: auditTab, history: historyTab, settings: settingsTab, redirects: redirectsTab, snippets: snippetsTab, mail: mailTab, site: siteTab })[tab]();
     }
     tabs.forEach(function (t) {
         nav.appendChild(h('a', { href: '#', 'data-tab': t[0], class: 'nav-tab', text: t[1], onclick: function (e) { e.preventDefault(); show(t[0]); } }));
@@ -209,6 +210,41 @@
                 download('mail-check-' + new Date().toISOString().slice(0, 10) + '.json', 'application/json', JSON.stringify(d, null, 2));
             } })));
         }).catch(fail);
+    }
+
+
+    /* -------------------------------------------------------- site check */
+    function siteTab() {
+        content.appendChild(h('p', { class: 'description', text: 'Read-only reports. Nothing is changed. Download a report to share it.' }));
+        var sel = h('select');
+        [['health', 'Site health'], ['security', 'Plugins and security'], ['shop', 'Shop (WooCommerce)'], ['indexing', 'Indexing and redirects']].forEach(function (o) { sel.appendChild(h('option', { value: o[0], text: o[1] })); });
+        var box = h('div');
+        var last = null;
+        function render(d) {
+            last = d; box.innerHTML = '';
+            d.sections.forEach(function (sec) {
+                box.appendChild(h('h3', { text: sec.title }));
+                if (sec.type === 'list') {
+                    var ul = h('ul');
+                    sec.items.forEach(function (i) { ul.appendChild(h('li', { text: i })); });
+                    box.appendChild(ul);
+                } else {
+                    var t = h('table', { class: 'widefat striped' }, h('thead', {}, h('tr', {}, sec.head.map(function (c) { return h('th', { text: c }); }))));
+                    var b = h('tbody');
+                    sec.rows.forEach(function (r) { b.appendChild(h('tr', {}, r.map(function (c) { return h('td', { text: c == null ? '' : String(c) }); }))); });
+                    t.appendChild(b); box.appendChild(t);
+                }
+            });
+        }
+        function run() {
+            say('Checking…', true); box.innerHTML = '';
+            api('report/' + sel.value).then(function (d) { say('', true); render(d); }).catch(fail);
+        }
+        content.appendChild(h('p', {}, sel, ' ',
+            h('button', { type: 'button', class: 'button button-primary', text: 'Run', onclick: run }), ' ',
+            h('button', { type: 'button', class: 'button', text: 'Download JSON', onclick: function () { if (last) { download('site-check-' + sel.value + '-' + new Date().toISOString().slice(0, 10) + '.json', 'application/json', JSON.stringify(last, null, 2)); } } })));
+        content.appendChild(box);
+        run();
     }
 
     /* ------------------------------------------------------------ export */
