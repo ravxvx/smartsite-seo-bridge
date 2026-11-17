@@ -34,8 +34,15 @@
             headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
             body: data ? JSON.stringify(data) : undefined
         }).then(function (r) {
-            return r.json().catch(function () { return {}; }).then(function (j) {
-                if (!r.ok) { throw new Error(j.message || ('HTTP ' + r.status)); }
+            return r.text().then(function (txt) {
+                var j = null;
+                try { j = JSON.parse(txt); } catch (e) {
+                    // Another plugin printed a PHP notice before the JSON: use the JSON part if there is one.
+                    var at = txt.search(/[\[{]/);
+                    if (at > 0) { try { j = JSON.parse(txt.slice(at)); } catch (e2) { j = null; } }
+                }
+                if (!r.ok) { throw new Error((j && j.message) || ('HTTP ' + r.status)); }
+                if (j === null) { throw new Error('The server returned an invalid response for ' + path.split('?')[0] + ' (HTTP ' + r.status + '). Try again; if it repeats, a PHP notice or timeout on the site is breaking the reply.'); }
                 return j;
             });
         });
@@ -284,10 +291,14 @@
     /* ------------------------------------------------------------ export */
     function fetchAll(type, status) {
         var all = [];
+        var pages = 1;
         function next(page) {
-            return api('items?audit=1&per_page=50&page=' + page + '&post_type=' + encodeURIComponent(type) + '&status=' + encodeURIComponent(status)).then(function (d) {
-                all = all.concat(d.items);
-                return page < d.pages ? next(page + 1) : all;
+            say('Preparing export… page ' + page + (pages > 1 ? ' / ' + pages : ''), true);
+            return api('items?audit=1&per_page=20&page=' + page + '&post_type=' + encodeURIComponent(type) + '&status=' + encodeURIComponent(status)).then(function (d) {
+                if (!d || !Array.isArray(d.items)) { throw new Error('Export stopped: page ' + page + ' did not return a list of items.'); }
+                all = all.concat(d.items.filter(function (i) { return i && i.audit; }));
+                pages = d.pages || page;
+                return page < pages ? next(page + 1) : all;
             });
         }
         return next(1);
@@ -355,6 +366,8 @@
             tbody.innerHTML = '';
             api('items?audit=1&per_page=20&page=' + A.page + '&post_type=' + encodeURIComponent(A.type) + '&status=' + A.status + '&search=' + encodeURIComponent(A.search))
                 .then(function (d) {
+                    if (!d || !Array.isArray(d.items)) { throw new Error('The list did not load (invalid response). Try again.'); }
+                    d.items = d.items.filter(function (i) { return i && i.audit; });
                     var items = d.items.filter(function (i) { return !A.below || i.audit.score < cfg.target; });
                     var sum = 0;
                     d.items.forEach(function (i) { sum += i.audit.score; });

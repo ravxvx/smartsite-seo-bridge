@@ -1,6 +1,10 @@
-# SmartSite SEO Bridge 1.8.2
+# SmartSite SEO Bridge 1.9.1
 
 Full control of Rank Math SEO for administrators and connected tools (Jetpack / WordPress.com MCP, REST, Abilities API). Works on any WordPress site with Rank Math: the plugin ships no site-specific content.
+
+## 1.9.1
+
+- Fixed: "Cannot read properties of undefined (reading 'post_id')" on Export CSV / JSON when one page of the list came back as invalid JSON (PHP notice from another plugin or timeout). Exports now fetch 20 items per page, skip broken items and show a clear message; the server swallows stray output while building the list.
 
 ## What's new in 1.8.2
 
