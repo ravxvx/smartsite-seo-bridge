@@ -104,3 +104,6 @@ Build the ZIP: `./build.sh` (packs the plugin files only; `examples/` and this R
 
 ### 1.10.1
 - Abilities `smartsite-seo/plan-content-images` (read-only) and `apply-content-images` for the Images tab.
+
+### 1.10.2
+- Audit scores what visitors see for pages whose content comes from a theme template (shop, blog, theme-built pages): when the stored content is under ~400 characters, the published page is fetched (10 s timeout, cached 10 minutes) and its `<main>` is analysed. The result carries `source` ("stored content" or "rendered page"). Falls back to stored content if the page cannot be fetched.

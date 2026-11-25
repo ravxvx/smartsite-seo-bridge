@@ -43,7 +43,50 @@ final class SSB_Audit {
             }
             wp_reset_postdata();
         }
+        // Pages whose visible content comes from a theme template (shop, blog, theme-built home or service
+        // pages) have almost no stored content. Score what visitors see instead.
+        if ($post->post_status === 'publish' && self::visible_chars($html) < 400) {
+            $page = self::rendered_main($post);
+            if ($page !== '' && self::visible_chars($page) > self::visible_chars($html)) {
+                self::$source[$post->ID] = 'rendered page';
+                return $page;
+            }
+        }
+        self::$source[$post->ID] = 'stored content';
         return $html;
+    }
+
+    /** @var array<int,string> where the analysed HTML came from, per post id */
+    private static $source = array();
+
+    public static function source_of($post_id) {
+        return isset(self::$source[$post_id]) ? self::$source[$post_id] : 'stored content';
+    }
+
+    private static function visible_chars($html) {
+        $t = preg_replace('#<(script|style|svg|noscript)\b[^>]*>.*?</\1>#is', '', (string) $html);
+        return strlen(trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $t))));
+    }
+
+    /** Fetches the public page and returns its <main> (or body without header, nav and footer). */
+    private static function rendered_main($post) {
+        $key = 'ssb_rendered_' . $post->ID . '_' . md5($post->post_modified_gmt);
+        $cached = get_transient($key);
+        if (is_string($cached)) {
+            return $cached;
+        }
+        $res = wp_remote_get(get_permalink($post->ID), array('timeout' => 10, 'redirection' => 2, 'user-agent' => 'SmartSiteSEOBridge-Audit/1.0', 'headers' => array('Cache-Control' => 'no-cache')));
+        $out = '';
+        if (!is_wp_error($res) && (int) wp_remote_retrieve_response_code($res) === 200) {
+            $body = (string) wp_remote_retrieve_body($res);
+            if (preg_match('#<main\b[^>]*>(.*?)</main>#is', $body, $m)) {
+                $out = $m[1];
+            } elseif (preg_match('#<body\b[^>]*>(.*?)</body>#is', $body, $m)) {
+                $out = preg_replace('#<(header|nav|footer)\b[^>]*>.*?</\1>#is', '', $m[1]);
+            }
+        }
+        set_transient($key, (string) $out, 10 * MINUTE_IN_SECONDS);
+        return (string) $out;
     }
 
     private static function other_uses_keyword($post_id, $kw) {
@@ -75,7 +118,7 @@ final class SSB_Audit {
         $seo_title = (string) get_post_meta($post_id, 'rank_math_title', true);
         $permalink = (string) get_permalink($post_id);
         $path = (string) wp_parse_url($permalink, PHP_URL_PATH);
-        return self::analyze(array(
+        $result = self::analyze(array(
             'keyword' => $kw,
             'keyword_slug' => $kw === '' ? '' : sanitize_title($kw),
             'title' => $seo_title !== '' ? $seo_title : get_the_title($post_id),
@@ -88,6 +131,8 @@ final class SSB_Audit {
             'keyword_unique' => $kw === '' ? true : !self::other_uses_keyword($post_id, $kw),
             'rank_math_score' => (int) get_post_meta($post_id, 'rank_math_seo_score', true),
         ));
+        $result['source'] = self::source_of($post_id);
+        return $result;
     }
 
     /** Pure analysis (no WordPress calls) so it can be unit-tested. */
