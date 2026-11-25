@@ -194,6 +194,24 @@ final class SSB_Abilities {
                 'permission_callback' => $admin,
                 'meta' => $meta(true),
             ));
+            wp_register_ability('smartsite-seo/plan-content-images', array(
+                'label' => 'Plan: featured image into content',
+                'description' => 'Read-only preview of published, indexable items whose content has no image: the featured image would be inserted with alt text containing the focus keyword.',
+                'category' => 'smartsite-seo',
+                'input_schema' => array('type' => 'object', 'properties' => new stdClass()),
+                'execute_callback' => function () { return SSB_Images::plan(); },
+                'permission_callback' => $admin,
+                'meta' => $meta(true),
+            ));
+            wp_register_ability('smartsite-seo/apply-content-images', array(
+                'label' => 'Insert featured images into content',
+                'description' => 'Inserts the featured image (with keyword alt text) into the content of the given item ids, or of all planned items when ids is empty. Each change is a normal WordPress revision.',
+                'category' => 'smartsite-seo',
+                'input_schema' => array('type' => 'object', 'properties' => array('ids' => array('type' => 'array', 'items' => array('type' => 'integer')))),
+                'execute_callback' => function ($input) { return SSB_Images::apply(isset($input['ids']) ? (array) $input['ids'] : array()); },
+                'permission_callback' => $admin,
+                'meta' => $meta(false),
+            ));
         } catch (\Throwable $e) {
             // The Abilities API changed shape: the REST routes keep working.
         }
