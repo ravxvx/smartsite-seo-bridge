@@ -98,3 +98,6 @@ Build the ZIP: `./build.sh` (packs the plugin files only; `examples/` and this R
 
 ### 1.9.0
 - New "Images" tab: inserts the featured image into the content (alt text with the focus keyword) for published, indexable items whose content has no image. Preview first, apply on confirmation, normal WordPress revisions.
+
+### 1.10.0
+- Site tools (administrator only, no code execution, no file writes): read the active theme's files, read/replace Additional CSS with an undoable history, read the tail of the PHP error log. Also exposed as WordPress Abilities (`smartsite-seo/list-theme-files`, `read-theme-file`, `get-additional-css`, `set-additional-css`, `undo-additional-css`, `read-php-log`).

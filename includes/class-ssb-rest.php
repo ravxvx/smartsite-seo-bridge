@@ -85,6 +85,34 @@ final class SSB_REST {
                 return self::out(SSB_Snippets::save($p === null ? array() : $p));
             },
         ));
+        register_rest_route(self::NS, '/site/theme', array(
+            'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function () {
+                return self::out(SSB_SiteTools::theme_files());
+            },
+        ));
+        register_rest_route(self::NS, '/site/theme-file', array(
+            'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
+                return self::out(SSB_SiteTools::theme_file((string) $r['theme'], (string) $r['path']));
+            },
+        ));
+        register_rest_route(self::NS, '/site/css', array(
+            array('methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function () {
+                return self::out(SSB_SiteTools::css_get());
+            }),
+            array('methods' => WP_REST_Server::CREATABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
+                return self::out(SSB_SiteTools::css_set((string) $r->get_param('css'), (string) $r->get_param('note'), !empty($r->get_param('dry_run'))));
+            }),
+        ));
+        register_rest_route(self::NS, '/site/css/(?P<id>[A-Za-z0-9\-]+)/undo', array(
+            'methods' => WP_REST_Server::CREATABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
+                return self::out(SSB_SiteTools::css_undo((string) $r['id']));
+            },
+        ));
+        register_rest_route(self::NS, '/site/php-log', array(
+            'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function ($r) {
+                return self::out(SSB_SiteTools::php_log($r['lines'] ? (int) $r['lines'] : 80));
+            },
+        ));
         register_rest_route(self::NS, '/images/plan', array(
             'methods' => WP_REST_Server::READABLE, 'permission_callback' => $admin, 'callback' => function () {
                 return self::out(SSB_Images::plan());

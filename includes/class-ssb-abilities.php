@@ -140,6 +140,60 @@ final class SSB_Abilities {
                 'permission_callback' => $admin,
                 'meta' => $meta(false),
             ));
+            wp_register_ability('smartsite-seo/list-theme-files', array(
+                'label' => 'List files of the active theme',
+                'description' => 'Read-only list of template, style and script files in the active (child and parent) theme.',
+                'category' => 'smartsite-seo',
+                'input_schema' => array('type' => 'object', 'properties' => new stdClass()),
+                'execute_callback' => function () { return SSB_SiteTools::theme_files(); },
+                'permission_callback' => $admin,
+                'meta' => $meta(true),
+            ));
+            wp_register_ability('smartsite-seo/read-theme-file', array(
+                'label' => 'Read one file of the active theme',
+                'description' => 'Read-only. Returns the text of a theme file (php, css, js, json, html, txt, md, up to 150 KB). Cannot read outside the theme folder.',
+                'category' => 'smartsite-seo',
+                'input_schema' => array('type' => 'object', 'properties' => array('theme' => array('type' => 'string'), 'path' => array('type' => 'string')), 'required' => array('path')),
+                'execute_callback' => function ($input) { return SSB_SiteTools::theme_file(isset($input['theme']) ? $input['theme'] : '', isset($input['path']) ? $input['path'] : ''); },
+                'permission_callback' => $admin,
+                'meta' => $meta(true),
+            ));
+            wp_register_ability('smartsite-seo/get-additional-css', array(
+                'label' => 'Read Additional CSS and its history',
+                'description' => 'Returns the Customizer Additional CSS and a list of earlier versions saved by this plugin.',
+                'category' => 'smartsite-seo',
+                'input_schema' => array('type' => 'object', 'properties' => new stdClass()),
+                'execute_callback' => function () { return SSB_SiteTools::css_get(); },
+                'permission_callback' => $admin,
+                'meta' => $meta(true),
+            ));
+            wp_register_ability('smartsite-seo/set-additional-css', array(
+                'label' => 'Replace Additional CSS',
+                'description' => 'Replaces the whole Additional CSS with the given text (read it first and send the complete result). The previous version is saved to history and can be restored with undo. dry_run=true only reports sizes. HTML tags are refused.',
+                'category' => 'smartsite-seo',
+                'input_schema' => array('type' => 'object', 'properties' => array('css' => array('type' => 'string'), 'note' => array('type' => 'string'), 'dry_run' => array('type' => 'boolean', 'default' => false)), 'required' => array('css')),
+                'execute_callback' => function ($input) { return SSB_SiteTools::css_set(isset($input['css']) ? $input['css'] : '', isset($input['note']) ? $input['note'] : '', !empty($input['dry_run'])); },
+                'permission_callback' => $admin,
+                'meta' => $meta(false),
+            ));
+            wp_register_ability('smartsite-seo/undo-additional-css', array(
+                'label' => 'Restore an earlier Additional CSS version',
+                'description' => 'Restores a version from the history returned by get-additional-css.',
+                'category' => 'smartsite-seo',
+                'input_schema' => array('type' => 'object', 'properties' => array('id' => array('type' => 'string')), 'required' => array('id')),
+                'execute_callback' => function ($input) { return SSB_SiteTools::css_undo(isset($input['id']) ? $input['id'] : ''); },
+                'permission_callback' => $admin,
+                'meta' => $meta(false),
+            ));
+            wp_register_ability('smartsite-seo/read-php-log', array(
+                'label' => 'Read the tail of the PHP error log',
+                'description' => 'Read-only. Returns the last lines (default 80, max 300) of wp-content/debug.log or the PHP error_log when readable.',
+                'category' => 'smartsite-seo',
+                'input_schema' => array('type' => 'object', 'properties' => array('lines' => array('type' => 'integer', 'default' => 80))),
+                'execute_callback' => function ($input) { return SSB_SiteTools::php_log(isset($input['lines']) ? $input['lines'] : 80); },
+                'permission_callback' => $admin,
+                'meta' => $meta(true),
+            ));
         } catch (\Throwable $e) {
             // The Abilities API changed shape: the REST routes keep working.
         }
