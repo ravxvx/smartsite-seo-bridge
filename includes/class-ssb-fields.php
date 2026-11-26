@@ -302,7 +302,15 @@ final class SSB_Fields {
         ));
         $items = array();
         foreach ($q->posts as $p) {
-            $items[] = self::item($p->ID, $with_audit);
+            // Stray output (PHP notices from other plugins) would break the JSON reply; one bad item must not stop the list.
+            ob_start();
+            try {
+                $items[] = self::item($p->ID, $with_audit);
+            } catch (\Throwable $e) {
+                $items[] = array('post_id' => (int) $p->ID, 'post_type' => $p->post_type, 'status' => $p->post_status, 'post_title' => get_the_title($p), 'url' => get_permalink($p), 'seo' => array(), 'robots' => array(), 'schema' => array(), 'rank_math_score' => 0, 'error' => $e->getMessage(),
+                    'audit' => array('score' => 0, 'grade' => 'red', 'keyword' => '', 'words' => 0, 'density' => 0, 'checks' => array(array('id' => 'error', 'label' => 'Audit failed: ' . $e->getMessage(), 'status' => 'fail', 'tip' => ''))));
+            }
+            ob_end_clean();
         }
         return array('total' => (int) $q->found_posts, 'pages' => (int) $q->max_num_pages, 'page' => $paged, 'items' => $items);
     }
